@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tokio
+    username: postgres
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        default_schema: api
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  application:
+    name: tokio-crud-application
+
+app:
+  jwt:
+    secret: tokio-secret-key
+    expiration-ms: 86400000  # 1 dia
