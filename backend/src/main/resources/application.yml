@@ -17,5 +17,8 @@ spring:
 
 app:
   jwt:
-    secret: tokio-secret-key
-    expiration-ms: 86400000  # 1 dia
+    secret: pDUeQac7AWR2XB7KlUGK1qdRj6Ywkd5We678gGSHT5qazXCVBn3n0sP1MjLO9PQR
+    expiration: 86400000  # 1 dia
+
+via-cep:
+  url: https://viacep.com.br/ws/
