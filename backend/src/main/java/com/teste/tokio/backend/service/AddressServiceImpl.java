@@ -9,8 +9,6 @@ import com.teste.tokio.backend.repository.UserRepository;
 import com.teste.tokio.backend.service.interfaces.IAddressService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +30,7 @@ public class AddressServiceImpl implements IAddressService {
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public AddressDTO create(Long userId,AddressDTO dto) {
+    public AddressDTO create(Long userId, AddressDTO dto) {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         Address address = mapper.convertValue(dto, Address.class);
@@ -50,12 +48,27 @@ public class AddressServiceImpl implements IAddressService {
     }
 
     @Override
+    public AddressDTO getById(Long id) {
+        Address address = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Endereço não encontrado"));
+        return mapper.convertValue(address, AddressDTO.class);
+    }
+
+    @Override
     @Transactional(rollbackOn = Exception.class)
     public AddressDTO update(Long id, AddressDTO dto) {
+        //verifica se o endereço existe
         Address address = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Endereço não encontrado"));
         // atualiza campos
-        mapper.convertValue(dto, Address.class);
+        address.setCep(dto.cep());
+        address.setLogradouro(dto.logradouro());
+        address.setComplemento(dto.complemento());
+        address.setBairro(dto.bairro());
+        address.setCidade(dto.cidade());
+        address.setEstado(dto.estado());
+        address.setNumero(dto.numero());
+
         Address updated = repo.save(address);
         return mapper.convertValue(updated, AddressDTO.class);
 

@@ -15,4 +15,6 @@ public interface IAddressService {
     void delete(Long id, Long userId);
 
     boolean isOwner(Long principalId, Long addressId);
+
+    AddressDTO getById(Long id);
 }

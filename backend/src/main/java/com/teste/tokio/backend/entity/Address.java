@@ -36,7 +36,6 @@ public class Address {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     @JoinColumn(name = "user_id")
-    @JsonProperty("userId")
     private User user;
 
     @CreationTimestamp

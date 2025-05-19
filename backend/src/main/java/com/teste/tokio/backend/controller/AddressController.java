@@ -34,10 +34,16 @@ public class AddressController {
         return service.create(userId, dto);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @addressServiceImpl.isOwner(principal.id, #userId)")
+    @PreAuthorize("hasRole('ADMIN') or #userId == principal.id")
     @GetMapping("/user/{userId}")
     public List<AddressDTO> listByUser(@PathVariable Long userId) {
         return service.listByUser(userId);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or @addressServiceImpl.isOwner(principal.id, #id)")
+    @GetMapping("/{id}")
+    public AddressDTO getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
     //Aqui uso o SpEL para chamar o isOwner e verificar se o usuario é o dono do endereço
@@ -53,6 +59,8 @@ public class AddressController {
     public void delete(@PathVariable Long id) {
         service.delete(id, ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
     }
+
+
 
 
     @GetMapping("/consulta/{cep}")
