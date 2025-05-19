@@ -5,13 +5,14 @@ import { UserModel } from '../../models/user.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, ConfirmModalComponent] // Adicionado ConfirmModalComponent
 })
 export class UserListComponent implements OnInit {
   users: UserModel[] = [];
@@ -25,6 +26,8 @@ export class UserListComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   isAdmin = false;
+  showConfirmModal = false;
+  userToDelete: number | null = null;
 
   constructor(
     private userService: UserService,
@@ -75,6 +78,57 @@ export class UserListComponent implements OnInit {
     });
   }
 
+  // Método para abrir o modal de confirmação
+  confirmDeleteUser(id: number): void {
+    this.userToDelete = id;
+    this.showConfirmModal = true;
+  }
+  
+  // Método chamado quando o usuário confirma a exclusão no modal
+  onDeleteConfirmed(): void {
+    if (this.userToDelete === null) return;
+    
+    this.loading = true;
+    this.userService.deleteUser(this.userToDelete).subscribe({
+      next: () => {
+        this.successMessage = 'Usuário excluído com sucesso!';
+        // Remover o usuário da lista após exclusão bem-sucedida
+        this.allUsers = this.allUsers.filter(user => user.id !== this.userToDelete);
+        this.filteredUsers = this.filteredUsers.filter(user => user.id !== this.userToDelete);
+        this.updateDisplayedUsers();
+        this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+        if (this.totalPages === 0) this.totalPages = 1;
+        this.loading = false;
+        
+        // Limpar a mensagem após alguns segundos
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+        
+        // Fechar o modal
+        this.closeModal();
+      },
+      error: (error) => {
+        console.error('Erro ao excluir usuário', error);
+        this.errorMessage = 'Erro ao excluir usuário. Tente novamente.';
+        this.loading = false;
+        
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 3000);
+        
+        // Fechar o modal mesmo em caso de erro
+        this.closeModal();
+      }
+    });
+  }
+  
+  // Método para fechar o modal
+  closeModal(): void {
+    this.showConfirmModal = false;
+    this.userToDelete = null;
+  }
+  
   // Método de busca local
   searchUsers(): void {
     if (!this.searchTerm.trim()) {
@@ -125,41 +179,15 @@ export class UserListComponent implements OnInit {
     this.router.navigate(['/usuarios/editar', id]);
   }
 
+  // Substituir o método deleteUser pelo confirmDeleteUser no html
+  // Manter o método para compatibilidade temporária
   deleteUser(id: number | undefined): void {
     if (id === undefined) {
       this.errorMessage = 'ID de usuário inválido';
       return;
     }
     
-    if (confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
-      this.loading = true;
-      this.userService.deleteUser(id).subscribe({
-        next: () => {
-          this.successMessage = 'Usuário excluído com sucesso!';
-          // Remover o usuário da lista após exclusão bem-sucedida
-          this.allUsers = this.allUsers.filter(user => user.id !== id);
-          this.filteredUsers = this.filteredUsers.filter(user => user.id !== id);
-          this.updateDisplayedUsers();
-          this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
-          if (this.totalPages === 0) this.totalPages = 1;
-          this.loading = false;
-          
-          // Limpar a mensagem após alguns segundos
-          setTimeout(() => {
-            this.successMessage = '';
-          }, 3000);
-        },
-        error: (error) => {
-          console.error('Erro ao excluir usuário', error);
-          this.errorMessage = 'Erro ao excluir usuário. Tente novamente.';
-          this.loading = false;
-          
-          setTimeout(() => {
-            this.errorMessage = '';
-          }, 3000);
-        }
-      });
-    }
+    this.confirmDeleteUser(id);
   }
 
   addNewUser(): void {

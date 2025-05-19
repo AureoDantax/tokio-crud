@@ -1,0 +1,28 @@
+<div class="modal-overlay" [class.active]="isOpen" (click)="onCancel()">
+  <div class="modal-container" (click)="$event.stopPropagation()" [class.active]="isOpen">
+    <div class="modal-header">
+      <h2>{{ title }}</h2>
+      <button class="btn-close" (click)="onCancel()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>{{ message }}</p>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="onCancel()">
+        {{ cancelText }}
+      </button>
+      <button 
+        class="btn" 
+        [ngClass]="{'btn-danger': confirmButtonClass === 'danger', 
+                    'btn-primary': confirmButtonClass === 'primary',
+                    'btn-warning': confirmButtonClass === 'warning'}" 
+        (click)="onConfirm()">
+        {{ confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

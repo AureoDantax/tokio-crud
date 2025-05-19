@@ -38,7 +38,7 @@
         <button class="btn-icon" title="Editar" (click)="editAddress(address.id)">
           <i class="fas fa-edit"></i>
         </button>
-        <button class="btn-icon btn-delete" title="Excluir" (click)="deleteAddress(address.id)">
+        <button class="btn-icon btn-delete" title="Excluir" (click)="confirmDeleteAddress(address.id)">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -50,4 +50,16 @@
       <i class="fas fa-arrow-left"></i> Voltar para Dashboard
     </button>
   </div>
+  
+  <!-- Modal de confirmação -->
+  <app-confirm-modal
+    [isOpen]="showConfirmModal"
+    title="Confirmar Exclusão"
+    message="Tem certeza que deseja excluir este endereço? Esta ação não pode ser desfeita."
+    confirmText="Excluir"
+    cancelText="Cancelar"
+    confirmButtonClass="danger"
+    (confirm)="onDeleteConfirmed()"
+    (cancel)="closeModal()"
+  ></app-confirm-modal>
 </div>

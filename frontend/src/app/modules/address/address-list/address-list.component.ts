@@ -4,19 +4,24 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AddressDTO } from '../../models/address.model';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-address-list',
   templateUrl: './address-list.component.html',
   styleUrls: ['./address-list.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule]
+  imports: [CommonModule, RouterModule, ConfirmModalComponent]
 })
 export class AddressListComponent implements OnInit {
   addresses: AddressDTO[] = [];
   loading = false;
   userId: number | null = null;
   successMessage: string | null = null;
+  
+  // Modal properties
+  showConfirmModal = false;
+  addressToDelete: number | null = null;
 
   constructor(
     private addressService: AddressService,
@@ -66,23 +71,38 @@ export class AddressListComponent implements OnInit {
     }
   }
 
-  deleteAddress(id: number | undefined): void {
-    if (id === undefined) return;
-    
-    if (confirm('Tem certeza que deseja excluir este endereço?')) {
-      this.loading = true;
-      this.addressService.deleteAddress(id).subscribe({
-        next: () => {
-          this.successMessage = 'Endereço excluído com sucesso!';
-          setTimeout(() => this.successMessage = null, 5000);
-          this.loadAddresses();
-        },
-        error: (error) => {
-          console.error('Erro ao excluir endereço', error);
-          this.loading = false;
-        }
-      });
+  // Método para abrir o modal de confirmação
+  confirmDeleteAddress(id: number | undefined): void {
+    if (id !== undefined) {
+      this.addressToDelete = id;
+      this.showConfirmModal = true;
     }
+  }
+  
+  // Método chamado quando o usuário confirma a exclusão
+  onDeleteConfirmed(): void {
+    if (this.addressToDelete === null || !this.userId) return;
+    
+    this.loading = true;
+    this.addressService.deleteAddress(this.addressToDelete).subscribe({
+      next: () => {
+        this.successMessage = 'Endereço excluído com sucesso!';
+        setTimeout(() => this.successMessage = null, 5000);
+        this.loadAddresses();
+        this.closeModal();
+      },
+      error: (error) => {
+        console.error('Erro ao excluir endereço', error);
+        this.loading = false;
+        this.closeModal();
+      }
+    });
+  }
+  
+  // Método para fechar o modal
+  closeModal(): void {
+    this.showConfirmModal = false;
+    this.addressToDelete = null;
   }
 
   addNewAddress(): void {

@@ -30,7 +30,13 @@ export class AddressFormComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Obter ID do usuário logado
     this.userId = this.authService.getCurrentUser()?.id ?? null;
+    
+    if (!this.userId) {
+      this.router.navigate(['/login']);
+      return;
+    }
 
     this.initForm();
 
@@ -54,9 +60,9 @@ export class AddressFormComponent implements OnInit {
     });
   }
 
-  loadAddressDetails(id: number): void {
+  loadAddressDetails(addressId: number): void {
     this.loading = true;
-    this.addressService.getAddressById(id).subscribe({
+    this.addressService.getAddressById(addressId).subscribe({
       next: (address) => {
         this.addressForm.patchValue(address);
         this.loading = false;
@@ -140,6 +146,14 @@ export class AddressFormComponent implements OnInit {
       return;
     }
 
+    if (!this.userId) {
+      this.cepMessage = {
+        message: 'Erro: Usuário não identificado.',
+        type: 'error'
+      };
+      return;
+    }
+
     this.loading = true;
     const addressData = this.addressForm.value;
 
@@ -158,7 +172,7 @@ export class AddressFormComponent implements OnInit {
           };
         }
       });
-    } else if (this.userId) {
+    } else {
       this.addressService.createAddress(this.userId, addressData).subscribe({
         next: () => {
           this.loading = false;

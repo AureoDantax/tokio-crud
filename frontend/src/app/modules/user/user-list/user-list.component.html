@@ -12,11 +12,13 @@
   </div>
   
   <!-- Alertas de feedback -->
-  <div *ngIf="successMessage" class="alert alert-success">
+  <div *ngIf="successMessage" class="notification notification-success">
+    <i class="fas fa-check-circle"></i>
     {{ successMessage }}
   </div>
-  
-  <div *ngIf="errorMessage" class="alert alert-danger">
+
+  <div *ngIf="errorMessage" class="notification notification-error">
+    <i class="fas fa-exclamation-circle"></i>
     {{ errorMessage }}
   </div>
   
@@ -69,7 +71,7 @@
             <button class="btn-icon" title="Editar" (click)="editUser(user.id!)">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn-icon" title="Excluir" (click)="deleteUser(user.id!)">
+            <button class="btn-icon" title="Excluir" (click)="confirmDeleteUser(user.id!)">
               <i class="fas fa-trash"></i>
             </button>
           </td>
@@ -112,3 +114,15 @@
     Exibindo página {{ currentPage + 1 }} de {{ totalPages }}
   </div>
 </div>
+
+<!-- Modal de confirmação de exclusão -->
+<app-confirm-modal
+  [isOpen]="showConfirmModal"
+  title="Confirmar Exclusão"
+  message="Tem certeza que deseja excluir este usuário? Esta ação excluirá todos os endereços associados e não pode ser desfeita."
+  confirmText="Excluir"
+  cancelText="Cancelar"
+  confirmButtonClass="danger"
+  (confirm)="onDeleteConfirmed()"
+  (cancel)="closeModal()"
+></app-confirm-modal>
