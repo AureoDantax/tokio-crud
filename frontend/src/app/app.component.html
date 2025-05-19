@@ -1,13 +1,67 @@
 <div class="app-container">
-  <header>
-    <h1>Tokio CRUD</h1>
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo-container">
+        <i class="fas fa-database logo-icon"></i>
+        <h1>Tokio CRUD</h1>
+      </div>
+      
+      <nav class="main-nav">
+        <ul>
+          <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
+          <li><a routerLink="/usuarios" routerLinkActive="active">Usuários</a></li>
+          <li><a routerLink="/enderecos" routerLinkActive="active">Endereços</a></li>
+        </ul>
+      </nav>
+      
+      <div class="user-actions">
+        <a routerLink="/perfil" class="profile-link" title="Meu Perfil">
+          <i class="fas fa-user-circle"></i>
+        </a>
+        <button class="btn-logout" title="Sair" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
   </header>
   
   <main>
     <router-outlet></router-outlet>
   </main>
   
-  <footer>
-    <p>© 2024 Tokio CRUD</p>
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Tokio CRUD</h3>
+        <p>Sistema de gerenciamento de usuários e endereços</p>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Links Rápidos</h3>
+        <ul>
+          <li><a routerLink="/dashboard">Dashboard</a></li>
+          <li><a routerLink="/usuarios">Usuários</a></li>
+          <li><a routerLink="/enderecos">Endereços</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Contato</h3>
+        <ul>
+          <li><i class="fas fa-envelope"></i>contatotokiocrud.com</li>
+          <li><i class="fas fa-phone"></i> (11) 1234-5678</li>
+        </ul>
+        
+        <div class="social-icons">
+          <a href="https://www.facebook.com/TokioMarineSeguradora" title="Facebook" target="_blank"><i class="fab fa-facebook"></i></a>
+          <a href="https://www.instagram.com/tokiomarineseguradora/" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.linkedin.com/company/tokio-marine-seguradora-s-a/?originalSubdomain=br" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>© 2024 Tokio CRUD. Todos os direitos reservados.</p>
+    </div>
   </footer>
 </div>

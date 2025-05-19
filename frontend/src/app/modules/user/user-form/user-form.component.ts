@@ -5,14 +5,14 @@ import { UserService } from '../../services/user.service';
 import { AddressService } from '../../services/address.service';
 import { CommonModule } from '@angular/common';
 import { UserCreateDTO, UserUpdateDTO } from '../../models/user.model';
-import { AddressDTO } from '../../models/address.model';
+import { CepMaskDirective } from '../../../shared/directives/cep-mask.directive';
 
 @Component({
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, CepMaskDirective]
 })
 export class UserFormComponent implements OnInit {
   userForm!: FormGroup;
@@ -21,6 +21,7 @@ export class UserFormComponent implements OnInit {
   loading = false;
   submitted = false;
   roles = ['USER', 'ADMIN'];
+  cepMessages: { [key: number]: { message: string, type: 'success' | 'error' | 'info' } } = {};
 
   constructor(
     private fb: FormBuilder,
@@ -98,33 +99,51 @@ export class UserFormComponent implements OnInit {
     const addressForm = this.addresses.at(index) as FormGroup;
     const cep = addressForm.get('cep')?.value;
     
-    if (cep && /^\d{5}-\d{3}$/.test(cep)) {
-      this.loading = true;
-      const cepNumerico = cep.replace(/\D/g, '');
-      
-      this.addressService.consultCep(cepNumerico).subscribe({
-        next: (data) => {
-          if (!data.erro) {
-            addressForm.patchValue({
-              logradouro: data.logradouro,
-              bairro: data.bairro,
-              cidade: data.localidade,
-              estado: data.uf
-            });
-          } else {
-            alert('CEP não encontrado');
-          }
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Erro ao consultar CEP:', error);
-          alert('Erro ao consultar CEP. Tente novamente.');
-          this.loading = false;
-        }
-      });
-    } else {
-      alert('Por favor, informe um CEP válido no formato 00000-000');
+    if (!cep || !/^\d{5}-\d{3}$/.test(cep)) {
+      this.cepMessages[index] = {
+        message: 'Por favor, informe um CEP válido no formato 00000-000',
+        type: 'error'
+      };
+      setTimeout(() => delete this.cepMessages[index], 5000);
+      return;
     }
+    
+    this.loading = true;
+    const cepNumerico = cep.replace(/\D/g, '');
+    
+    this.addressService.consultCep(cepNumerico).subscribe({
+      next: (data) => {
+        if (!data.erro) {
+          addressForm.patchValue({
+            logradouro: data.logradouro,
+            bairro: data.bairro,
+            cidade: data.localidade,
+            estado: data.uf
+          });
+          
+          this.cepMessages[index] = {
+            message: 'Endereço encontrado com sucesso!',
+            type: 'success'
+          };
+        } else {
+          this.cepMessages[index] = {
+            message: 'CEP não encontrado. Verifique e tente novamente.',
+            type: 'error'
+          };
+        }
+        this.loading = false;
+        setTimeout(() => delete this.cepMessages[index], 5000);
+      },
+      error: (error) => {
+        console.error('Erro ao consultar CEP:', error);
+        this.cepMessages[index] = {
+          message: 'Erro ao consultar CEP. Tente novamente mais tarde.',
+          type: 'error'
+        };
+        this.loading = false;
+        setTimeout(() => delete this.cepMessages[index], 5000);
+      }
+    });
   }
 
   loadUserDetails(id: number): void {
