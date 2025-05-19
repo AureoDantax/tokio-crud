@@ -94,3 +94,4 @@ Durante o desenvolvimento, as requisições do frontend para o backend são redi
 
 - Certifique-se de que todas as variáveis de ambiente necessárias estejam configuradas corretamente.
 - Talvez a porta do Frontend possa ser outra caso a padrão esteja em uso
+- Criar um usuário com a role ADMIN via insomnia ou postman
