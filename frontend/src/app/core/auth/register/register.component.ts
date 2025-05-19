@@ -4,13 +4,14 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { AddressService } from '../../../modules/services/address.service';
 import { CommonModule } from '@angular/common';
+import { CepMaskDirective } from '../../../shared/directives/cep-mask.directive';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, CepMaskDirective]
 })
 export class RegisterComponent implements OnInit {
   userForm!: FormGroup;
@@ -18,6 +19,7 @@ export class RegisterComponent implements OnInit {
   loading = false;
   errorMessage = '';
   formStep = 1; // Controle de etapas do formulário
+  cepMessage: { message: string, type: 'success' | 'error' | 'info' } | null = null;
   
   constructor(
     private fb: FormBuilder,
@@ -73,28 +75,55 @@ export class RegisterComponent implements OnInit {
     });
   }
   
+  // Atualizar o método searchCep para usar notificações amigáveis
   searchCep(): void {
-    const cep = this.addressForm.get('cep')?.value.replace(/\D/g, '');
+    const cep = this.addressForm.get('cep')?.value;
     
-    if (cep && cep.length === 8) {
-      this.loading = true;
-      this.addressService.consultCep(cep).subscribe({
-        next: (data) => {
+    if (!cep || !/^\d{5}-\d{3}$/.test(cep)) {
+      this.cepMessage = {
+        message: 'Por favor, informe um CEP válido no formato 00000-000',
+        type: 'error'
+      };
+      setTimeout(() => this.cepMessage = null, 5000);
+      return;
+    }
+
+    const cepNumerico = cep.replace(/\D/g, '');
+    
+    this.loading = true;
+    this.addressService.consultCep(cepNumerico).subscribe({
+      next: (data) => {
+        if (!data.erro) {
           this.addressForm.patchValue({
             logradouro: data.logradouro,
             bairro: data.bairro,
             cidade: data.localidade,
             estado: data.uf
           });
-          this.loading = false;
-        },
-        error: (error: Error) => {
-          console.error('Erro ao consultar CEP', error);
-          this.errorMessage = 'Não foi possível encontrar o endereço com este CEP.';
-          this.loading = false;
+          
+          this.cepMessage = {
+            message: 'Endereço encontrado com sucesso!',
+            type: 'success'
+          };
+        } else {
+          this.cepMessage = {
+            message: 'CEP não encontrado. Verifique e tente novamente.',
+            type: 'error'
+          };
         }
-      });
-    }
+        this.loading = false;
+        setTimeout(() => this.cepMessage = null, 5000);
+      },
+      error: (error: Error) => {
+        console.error('Erro ao consultar CEP', error);
+        this.cepMessage = {
+          message: 'Erro ao consultar CEP. Tente novamente mais tarde.',
+          type: 'error'
+        };
+        this.loading = false;
+        setTimeout(() => this.cepMessage = null, 5000);
+      }
+    });
   }
   
   onSubmit(): void {

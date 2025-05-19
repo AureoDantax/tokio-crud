@@ -76,13 +76,15 @@
               id="cep" 
               formControlName="cep"
               placeholder="00000-000"
+              maxlength="9"
+              appCepMask
               [ngClass]="{'is-invalid': cepControl?.invalid && cepControl?.touched}"
             >
             <button 
               type="button" 
               class="btn-secondary btn-search"
               (click)="searchCep()"
-              [disabled]="cepControl?.invalid || loading">  <!-- Adicione o ? após cepControl -->
+              [disabled]="cepControl?.invalid || loading">
               <span *ngIf="loading" class="spinner"></span>
               Buscar
             </button>
@@ -91,6 +93,17 @@
             <span *ngIf="cepControl?.errors?.['required']">CEP é obrigatório</span>
             <span *ngIf="cepControl?.errors?.['pattern']">Formato de CEP inválido</span>
           </div>
+        </div>
+        
+        <!-- Adicionar após o input de CEP -->
+        <div *ngIf="cepMessage" 
+             class="cep-notification" 
+             [ngClass]="{'notification-success': cepMessage.type === 'success', 
+                        'notification-error': cepMessage.type === 'error'}">
+          <i class="fas" 
+             [ngClass]="{'fa-check-circle': cepMessage.type === 'success', 
+                        'fa-exclamation-circle': cepMessage.type === 'error'}"></i>
+          {{ cepMessage.message }}
         </div>
         
         <div class="form-group">

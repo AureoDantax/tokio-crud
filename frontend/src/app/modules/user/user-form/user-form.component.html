@@ -117,6 +117,8 @@
                   formControlName="cep"
                   [ngClass]="{'is-invalid': submitted && addresses.at(i).get('cep')?.errors}"
                   placeholder="00000-000"
+                  maxlength="9"
+                  appCepMask
                 >
                 <button type="button" class="btn-search" (click)="searchCep(i)">
                   <i class="fas fa-search"></i>
@@ -208,6 +210,17 @@
                 <span *ngIf="addresses.at(i).get('estado')?.errors?.['minlength'] || addresses.at(i).get('estado')?.errors?.['maxlength']">UF deve ter 2 caracteres</span>
               </div>
             </div>
+          </div>
+
+          <!-- Notificação amigável para CEP -->
+          <div *ngIf="cepMessages[i]" 
+               class="cep-notification" 
+               [ngClass]="{'notification-success': cepMessages[i].type === 'success', 
+                           'notification-error': cepMessages[i].type === 'error'}">
+            <i class="fas" 
+               [ngClass]="{'fa-check-circle': cepMessages[i].type === 'success', 
+                          'fa-exclamation-circle': cepMessages[i].type === 'error'}"></i>
+            {{ cepMessages[i].message }}
           </div>
         </div>
       </div>

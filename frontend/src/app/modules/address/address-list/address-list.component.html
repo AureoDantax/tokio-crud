@@ -1,1 +1,53 @@
-<p>address-list works!</p>
+<div class="address-list-container">
+  <div class="address-list-header">
+    <h2>Meus Endereços</h2>
+    <button class="btn-primary" (click)="addNewAddress()">
+      <i class="fas fa-plus"></i> Novo Endereço
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="success-notification">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Carregando endereços...</p>
+  </div>
+
+  <div *ngIf="!loading && addresses.length === 0" class="empty-state">
+    <i class="fas fa-map-marker-alt"></i>
+    <p>Você ainda não possui endereços cadastrados.</p>
+    <button class="btn-primary" (click)="addNewAddress()">Adicionar Primeiro Endereço</button>
+  </div>
+
+  <div *ngIf="!loading && addresses.length > 0" class="address-cards">
+    <div *ngFor="let address of addresses" class="address-card">
+      <div class="address-details">
+        <div class="address-main">
+          <span class="address-label">Endereço:</span>
+          <p class="address-line">{{ address.logradouro }}, {{ address.numero }}</p>
+          <p *ngIf="address.complemento" class="address-line">{{ address.complemento }}</p>
+          <p class="address-line">{{ address.bairro }}</p>
+          <p class="address-line">{{ address.cidade }} - {{ address.estado }}</p>
+          <p class="address-line">CEP: {{ address.cep }}</p>
+        </div>
+      </div>
+      <div class="address-actions">
+        <button class="btn-icon" title="Editar" (click)="editAddress(address.id)">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon btn-delete" title="Excluir" (click)="deleteAddress(address.id)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="back-button-container">
+    <button class="btn-secondary" routerLink="/dashboard">
+      <i class="fas fa-arrow-left"></i> Voltar para Dashboard
+    </button>
+  </div>
+</div>

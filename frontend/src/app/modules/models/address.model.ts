@@ -1,5 +1,5 @@
 export interface AddressDTO {
-  id?: number;
+  id: number; // Garante que id sempre seja obrigatório
   cep: string;
   logradouro: string;
   numero: string;

@@ -1,21 +1,11 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-
-import { AddressRoutingModule } from './address-routing.module';
-import { AddressFormComponent } from './address-form/address-form.component';
-import { AddressListComponent } from './address-list/address-list.component';
+import { RouterModule } from '@angular/router';
+import { ADDRESS_ROUTES } from './address.routes';
 
 @NgModule({
-  declarations: [
-
-  ],
   imports: [
-    AddressFormComponent,
-    AddressListComponent,
-    CommonModule,
-    AddressRoutingModule,
-    ReactiveFormsModule
-  ]
+    RouterModule.forChild(ADDRESS_ROUTES)
+  ],
+  exports: [RouterModule]
 })
 export class AddressModule { }
