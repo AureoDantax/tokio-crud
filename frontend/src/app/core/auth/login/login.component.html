@@ -1,0 +1,82 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Login</h2>
+    
+    <!-- Mensagens de feedback -->
+    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+    
+    <div *ngIf="successMessage" class="alert alert-success" role="alert">
+      {{ successMessage }}
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email"
+          placeholder="seu@email.com"
+          [ngClass]="{'is-invalid': emailControl?.invalid && emailControl?.touched}"
+          autocomplete="email"
+        >
+        <div *ngIf="emailControl?.invalid && emailControl?.touched" class="invalid-feedback">
+          <span *ngIf="emailControl?.errors?.['required']">E-mail é obrigatório</span>
+          <span *ngIf="emailControl?.errors?.['email']">Formato de e-mail inválido</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="password-field">
+          <input 
+            [type]="hidePassword ? 'password' : 'text'" 
+            id="password" 
+            formControlName="password"
+            [ngClass]="{'is-invalid': passwordControl?.invalid && passwordControl?.touched}"
+            autocomplete="current-password"
+          >
+          <button 
+            type="button" 
+            class="password-toggle" 
+            (click)="togglePasswordVisibility()" 
+            tabindex="-1"
+          >
+            <span class="icon">
+              {{ hidePassword ? '👁️' : '👁️‍🗨️' }}
+            </span>
+          </button>
+        </div>
+        <div *ngIf="passwordControl?.invalid && passwordControl?.touched" class="invalid-feedback">
+          <span *ngIf="passwordControl?.errors?.['required']">Senha é obrigatória</span>
+          <span *ngIf="passwordControl?.errors?.['minlength']">Senha deve ter no mínimo 6 caracteres</span>
+        </div>
+      </div>
+      
+      <div class="form-options">
+        <div class="remember-me">
+          <input type="checkbox" id="remember" class="custom-checkbox">
+          <label for="remember">Lembrar-me</label>
+        </div>
+        <a routerLink="/recuperar-senha" class="forgot-password">Esqueceu sua senha?</a>
+      </div>
+      
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn-primary" 
+          [disabled]="loading"
+        >
+          <span *ngIf="loading" class="spinner"></span>
+          Entrar
+        </button>
+      </div>
+      
+      <div class="register-link">
+        Ainda não tem uma conta? <a routerLink="/registro">Registre-se</a>
+      </div>
+    </form>
+  </div>
+</div>

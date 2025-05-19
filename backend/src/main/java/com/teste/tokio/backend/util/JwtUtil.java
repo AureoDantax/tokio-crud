@@ -2,10 +2,8 @@ package com.teste.tokio.backend.util;
 
 import com.teste.tokio.backend.config.CustomUserDetails;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +29,7 @@ public class JwtUtil {
                         .stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()))
-                .claim("id", ((CustomUserDetails) userDetails).getId())
+                .claim("userId", ((CustomUserDetails) userDetails).getId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSigningKey())

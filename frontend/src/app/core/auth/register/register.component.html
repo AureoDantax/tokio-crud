@@ -1,0 +1,184 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>{{ formStep === 1 ? 'Criar Conta' : 'Endereço' }}</h2>
+    
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+    
+    <!-- Indicador de progresso -->
+    <div class="progress-indicator">
+      <div class="step" [class.active]="formStep >= 1">1</div>
+      <div class="step-line"></div>
+      <div class="step" [class.active]="formStep >= 2">2</div>
+    </div>
+    
+    <!-- Etapa 1: Informações do usuário -->
+    <div *ngIf="formStep === 1">
+      <form [formGroup]="userForm" (ngSubmit)="nextStep()">
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input 
+            type="text" 
+            id="nome" 
+            formControlName="nome"
+            [ngClass]="{'is-invalid': nomeControl?.invalid && nomeControl?.touched}"
+          >
+          <div *ngIf="nomeControl?.invalid && nomeControl?.touched" class="invalid-feedback">
+            <span *ngIf="nomeControl?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="nomeControl?.errors?.['minlength']">Nome deve ter no mínimo 3 caracteres</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email"
+            [ngClass]="{'is-invalid': emailControl?.invalid && emailControl?.touched}"
+          >
+          <div *ngIf="emailControl?.invalid && emailControl?.touched" class="invalid-feedback">
+            <span *ngIf="emailControl?.errors?.['required']">Email é obrigatório</span>
+            <span *ngIf="emailControl?.errors?.['email']">Formato de email inválido</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input 
+            type="password" 
+            id="password" 
+            formControlName="password"
+            [ngClass]="{'is-invalid': passwordControl?.invalid && passwordControl?.touched}"
+          >
+          <div *ngIf="passwordControl?.invalid && passwordControl?.touched" class="invalid-feedback">
+            <span *ngIf="passwordControl?.errors?.['required']">Senha é obrigatória</span>
+            <span *ngIf="passwordControl?.errors?.['minlength']">Senha deve ter no mínimo 6 caracteres</span>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" routerLink="/login" class="btn-secondary">Voltar para login</button>
+          <button type="submit" class="btn-primary" [disabled]="loading">Próximo</button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Etapa 2: Informações de endereço -->
+    <div *ngIf="formStep === 2">
+      <form [formGroup]="addressForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="cep">CEP</label>
+          <div class="cep-group">
+            <input 
+              type="text" 
+              id="cep" 
+              formControlName="cep"
+              placeholder="00000-000"
+              [ngClass]="{'is-invalid': cepControl?.invalid && cepControl?.touched}"
+            >
+            <button 
+              type="button" 
+              class="btn-secondary btn-search"
+              (click)="searchCep()"
+              [disabled]="cepControl?.invalid || loading">  <!-- Adicione o ? após cepControl -->
+              <span *ngIf="loading" class="spinner"></span>
+              Buscar
+            </button>
+          </div>
+          <div *ngIf="cepControl?.invalid && cepControl?.touched" class="invalid-feedback">
+            <span *ngIf="cepControl?.errors?.['required']">CEP é obrigatório</span>
+            <span *ngIf="cepControl?.errors?.['pattern']">Formato de CEP inválido</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="logradouro">Logradouro</label>
+          <input 
+            type="text" 
+            id="logradouro" 
+            formControlName="logradouro"
+            [ngClass]="{'is-invalid': logradouroControl?.invalid && logradouroControl?.touched}"
+          >
+          <div *ngIf="logradouroControl?.invalid && logradouroControl?.touched" class="invalid-feedback">
+            Logradouro é obrigatório
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="numero">Número</label>
+            <input 
+              type="text" 
+              id="numero" 
+              formControlName="numero"
+              [ngClass]="{'is-invalid': numeroControl?.invalid && numeroControl?.touched}"
+            >
+            <div *ngIf="numeroControl?.invalid && numeroControl?.touched" class="invalid-feedback">
+              Número é obrigatório
+            </div>
+          </div>
+          
+          <div class="form-group flex-2">
+            <label for="complemento">Complemento</label>
+            <input type="text" id="complemento" formControlName="complemento">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="bairro">Bairro</label>
+          <input 
+            type="text" 
+            id="bairro" 
+            formControlName="bairro"
+            [ngClass]="{'is-invalid': bairroControl?.invalid && bairroControl?.touched}"
+          >
+          <div *ngIf="bairroControl?.invalid && bairroControl?.touched" class="invalid-feedback">
+            Bairro é obrigatório
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="cidade">Cidade</label>
+            <input 
+              type="text" 
+              id="cidade" 
+              formControlName="cidade"
+              [ngClass]="{'is-invalid': cidadeControl?.invalid && cidadeControl?.touched}"
+            >
+            <div *ngIf="cidadeControl?.invalid && cidadeControl?.touched" class="invalid-feedback">
+              Cidade é obrigatória
+            </div>
+          </div>
+          
+          <div class="form-group flex-1">
+            <label for="estado">Estado (UF)</label>
+            <input 
+              type="text" 
+              id="estado" 
+              formControlName="estado"
+              placeholder="UF"
+              [ngClass]="{'is-invalid': estadoControl?.invalid && estadoControl?.touched}"
+            >
+            <div *ngIf="estadoControl?.invalid && estadoControl?.touched" class="invalid-feedback">
+              <span *ngIf="estadoControl?.errors?.['required']">UF é obrigatória</span>
+              <span *ngIf="estadoControl?.errors?.['minlength'] || estadoControl?.errors?.['maxlength']">
+                UF deve ter 2 caracteres
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" (click)="previousStep()" class="btn-secondary">Voltar</button>
+          <button type="submit" class="btn-primary" [disabled]="loading">
+            <span *ngIf="loading" class="spinner"></span>
+            Cadastrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
