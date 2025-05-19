@@ -29,6 +29,10 @@ export class UserListComponent implements OnInit {
   showConfirmModal = false;
   userToDelete: number | null = null;
 
+  // propriedades para ordenação
+  sortColumn: 'nome' | 'email' | null = null;
+  sortDirection: 'asc' | 'desc' = 'asc';
+
   constructor(
     private userService: UserService,
     private router: Router,
@@ -69,6 +73,13 @@ export class UserListComponent implements OnInit {
         this.users = this.filteredUsers; // Lista para exibição
         this.totalPages = response.totalPages;
         this.loading = false;
+
+        // Aplicar ordenação se existir
+        if (this.sortColumn) {
+          this.sortUsers();
+        } else {
+          this.updateDisplayedUsers();
+        }
       },
       error: (error) => {
         console.error('Erro ao carregar usuários', error);
@@ -133,23 +144,25 @@ export class UserListComponent implements OnInit {
   searchUsers(): void {
     if (!this.searchTerm.trim()) {
       this.filteredUsers = [...this.allUsers];
-      this.updateDisplayedUsers();
-      return;
+    } else {
+      const term = this.searchTerm.toLowerCase().trim();
+      this.filteredUsers = this.allUsers.filter(user => 
+        user.nome?.toLowerCase().includes(term) || 
+        user.email?.toLowerCase().includes(term)
+      );
     }
     
-    const term = this.searchTerm.toLowerCase().trim();
-    this.filteredUsers = this.allUsers.filter(user => 
-      user.nome?.toLowerCase().includes(term) || 
-      user.email?.toLowerCase().includes(term)
-    );
+    // Manter a ordenação após a busca
+    if (this.sortColumn) {
+      this.sortUsers();
+    } else {
+      this.updateDisplayedUsers();
+    }
     
-    // Resetar paginação para a primeira página quando filtrar
+    // Resetar paginação e calcular total de páginas
     this.currentPage = 0;
-    this.updateDisplayedUsers();
-    
-    // Calcular o novo número total de páginas
     this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
-    if (this.totalPages === 0) this.totalPages = 1; // Garantir pelo menos uma página
+    if (this.totalPages === 0) this.totalPages = 1;
   }
 
   // Atualiza os usuários exibidos com base na página atual
@@ -162,8 +175,15 @@ export class UserListComponent implements OnInit {
   clearSearch(): void {
     this.searchTerm = '';
     this.filteredUsers = [...this.allUsers];
+    
+    // Manter a ordenação ao limpar busca
+    if (this.sortColumn) {
+      this.sortUsers();
+    } else {
+      this.updateDisplayedUsers();
+    }
+    
     this.currentPage = 0;
-    this.updateDisplayedUsers();
     this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
     if (this.totalPages === 0) this.totalPages = 1;
   }
@@ -194,6 +214,48 @@ export class UserListComponent implements OnInit {
     this.router.navigate(['/usuarios/novo']);
   }
 
+  // Método para alternar ordenação
+  toggleSort(column: 'nome' | 'email'): void {
+    if (this.sortColumn === column) {
+      // Se já está ordenando por esta coluna, inverte a direção
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Se é uma nova coluna, define ela e começa com ascendente
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    
+    this.sortUsers();
+  }
+  
+  // Método para ordenar usuários
+  sortUsers(): void {
+    if (!this.sortColumn) return;
+    
+    // Clonar array antes de ordenar para evitar efeitos colaterais
+    const sortedArray = [...this.filteredUsers];
+    
+    sortedArray.sort((a, b) => {
+      const valueA = a[this.sortColumn!]?.toLowerCase() || '';
+      const valueB = b[this.sortColumn!]?.toLowerCase() || '';
+      
+      // Comparar valores da coluna selecionada
+      if (valueA < valueB) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      
+      // Se os valores forem iguais, use o ID como critério secundário
+      // para manter uma ordem consistente
+      return (a.id || 0) - (b.id || 0);
+    });
+    
+    this.filteredUsers = sortedArray;
+    this.updateDisplayedUsers();
+  }
+
   // Helper para criar um array com o número de páginas
   get pages(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i);
@@ -201,5 +263,15 @@ export class UserListComponent implements OnInit {
 
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  resetSort(): void {
+    // Limpar as propriedades de ordenação
+    this.sortColumn = null;
+    this.sortDirection = 'asc';
+    
+    // Restaurar a ordem original (baseada em data de criação)
+    this.filteredUsers.sort((a, b) => (a.id || 0) - (b.id || 0));
+    this.updateDisplayedUsers();
   }
 }

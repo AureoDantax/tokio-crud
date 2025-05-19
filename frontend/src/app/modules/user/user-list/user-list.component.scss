@@ -288,3 +288,57 @@
   overflow-x: auto;
   margin-bottom: 1.5rem;
 }
+
+// Adicionar estilos para o botão de reset
+.sort-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  
+  .sort-helper {
+    color: #7f8c8d;
+    font-size: 0.875rem;
+    
+    i {
+      color: #3498db;
+      margin-right: 0.3rem;
+    }
+  }
+}
+
+.btn-text.reset-sort {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+    text-decoration: underline;
+  }
+  
+  i {
+    margin-right: 0.35rem;
+    font-size: 0.8rem;
+  }
+}
+
+// Estilo para o ícone de reset nas colunas da tabela
+.reset-sort-icon {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  color: #7f8c8d;
+  opacity: 0.6;
+  
+  &:hover {
+    color: #e74c3c;
+    opacity: 1;
+  }
+}
