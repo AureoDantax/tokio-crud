@@ -44,6 +44,8 @@ export class LoginComponent implements OnInit {
         this.successMessage = 'Registro concluído com sucesso! Faça login para continuar.';
       } else if (params['sessionExpired']) {
         this.errorMessage = 'Sua sessão expirou. Por favor, faça login novamente.';
+      } else if (params['emailChanged']) {
+        this.successMessage = 'Seu email foi alterado. Por favor, faça login novamente com seu novo email.';
       }
     });
 

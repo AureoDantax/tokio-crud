@@ -27,7 +27,7 @@
     </div>
     
     <div class="form-group">
-      <label for="email">E-mail</label>
+      <label for="email">E-mail*</label>
       <input 
         type="email" 
         id="email" 
@@ -40,27 +40,50 @@
       </div>
     </div>
     
+    <!-- Exibir os campos de senha somente se o email foi alterado -->
+    <div *ngIf="emailChanged" class="email-change-notice">
+      <div class="info-message">
+        <i class="fas fa-info-circle"></i>
+        <span>Você está alterando seu email. Para confirmar esta alteração, informe sua senha:</span>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Senha para confirmar alteração*</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password"
+          [ngClass]="{'is-invalid': passwordControl?.invalid && passwordControl?.touched}"
+        >  
+        <div *ngIf="passwordRequired && passwordControl?.invalid && passwordControl?.touched" class="invalid-feedback">
+          <span>Senha é obrigatória para alterar o email</span>
+        </div>
+      </div>
+    </div>
+    
     <h3 class="section-title">Alterar Senha (opcional)</h3>
     
     <div class="form-group">
-      <label for="password">Nova Senha</label>
+      <label for="novaSenha">Nova Senha</label>
       <input 
         type="password" 
-        id="password" 
-        formControlName="password"
-        [ngClass]="{'is-invalid': passwordControl?.invalid && passwordControl?.touched}"
+        id="novaSenha" 
+        formControlName="novaSenha"
+        [ngClass]="{'is-invalid': novaSenhaControl?.invalid && novaSenhaControl?.touched}"
       >  
+      <div *ngIf="novaSenhaControl?.invalid && novaSenhaControl?.touched" class="invalid-feedback">
+        <span *ngIf="novaSenhaControl?.errors?.['minlength']">A senha deve ter no mínimo 6 caracteres</span>
+      </div>
     </div>
     
     <div class="form-group">
-      <label for="confirmPassword">Confirmar Nova Senha</label>
+      <label for="confirmarNovaSenha">Confirmar Nova Senha</label>
       <input 
         type="password" 
-        id="confirmPassword" 
-        formControlName="confirmPassword"
-        [ngClass]="{'is-invalid': profileForm.errors?.['passwordsMismatch'] && confirmPasswordControl?.touched}"
+        id="confirmarNovaSenha" 
+        formControlName="confirmarNovaSenha"
       >
-      <div *ngIf="profileForm.errors?.['passwordsMismatch'] && confirmPasswordControl?.touched" class="invalid-feedback">
+      <div *ngIf="profileForm.errors?.['passwordsMismatch'] && profileForm.get('confirmarNovaSenha')?.touched" class="invalid-feedback">
         <span>As senhas não coincidem</span>
       </div>
     </div>
@@ -93,7 +116,7 @@
       <button 
         type="submit" 
         class="btn-primary" 
-        [disabled]="profileForm.invalid || loading"
+        [disabled]="isFormInvalid() || loading"
       >
         <span *ngIf="loading" class="spinner"></span>
         Salvar Alterações

@@ -1,29 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators'; // Adicionar importação do operador tap
 import { LoginDto, RegisterDto, Token } from '../../modules/models/auth.model';
 import { UserModel } from '../../modules/models/user.model';
 import { environment } from '../../../enviroments/environment';
 import { jwtDecode } from 'jwt-decode';
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
-
-private decodeToken(): any {
-  const token = this.getToken();
-  if (token) {
-    try {
-      return jwtDecode(token);
-    } catch (error) {
-      console.error('Erro ao decodificar token:', error);
-      return null;
-    }
-  }
-  return null;
-}
   private apiUrl = environment.apiUrl;
+  private tokenKey = 'access_token'; // Adicionar propriedade tokenKey
   private currentUser: UserModel | null = null;
 
   constructor(private http: HttpClient) {
@@ -37,6 +26,19 @@ private decodeToken(): any {
         localStorage.removeItem('current_user');
       }
     }
+  }
+
+  private decodeToken(): any {
+    const token = this.getToken();
+    if (token) {
+      try {
+        return jwtDecode(token);
+      } catch (error) {
+        console.error('Erro ao decodificar token:', error);
+        return null;
+      }
+    }
+    return null;
   }
 
   login(loginDto: LoginDto): Observable<Token> {
@@ -72,8 +74,8 @@ private decodeToken(): any {
 
   // Método para buscar os dados do usuário por ID
   fetchUserById(userId: number): Observable<UserModel> {
-  return this.http.get<UserModel>(`${this.apiUrl}/users/${userId}`);
-}
+    return this.http.get<UserModel>(`${this.apiUrl}/users/${userId}`);
+  }
 
   // Método para salvar os dados do usuário após login/registro
   setCurrentUser(user: UserModel): void {
@@ -82,15 +84,29 @@ private decodeToken(): any {
   }
 
   // Método para buscar os dados do usuário da API
- fetchCurrentUser(): Observable<UserModel> {
-  const decodedToken = this.decodeToken();
-  console.log('Decoded Token:', decodedToken);
-  if (decodedToken && decodedToken.userId) {
-    const userId = decodedToken.userId;
-    return this.http.get<UserModel>(`${this.apiUrl}/users/${userId}`);
+  fetchCurrentUser(): Observable<UserModel> {
+    const decodedToken = this.decodeToken();
+    console.log('Decoded Token:', decodedToken);
+    if (decodedToken && decodedToken.userId) {
+      const userId = decodedToken.userId;
+      return this.http.get<UserModel>(`${this.apiUrl}/users/${userId}`);
+    }
+    return throwError(() => new Error('Token inválido ou expirado'));
   }
-  return throwError(() => new Error('Token inválido ou expirado'));
-}
 
-
+  // Método para renovar o token após alterações no email
+  renewToken(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
+      tap((response: any) => { // Especificar tipo do parâmetro response
+        if (response && response.token) {
+          localStorage.setItem(this.tokenKey, response.token);
+          // Atualizar o usuário com os dados mais recentes
+          const currentUser = this.getCurrentUser();
+          if (currentUser) {
+            this.setCurrentUser({...currentUser, ...response.user});
+          }
+        }
+      })
+    );
+  }
 }

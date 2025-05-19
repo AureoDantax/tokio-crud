@@ -24,10 +24,13 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.currentUser = this.authService.getCurrentUser();
-    console.log('Usuário atual:', this.currentUser);
-    this.isAdmin = this.currentUser?.role === 'ROLE_ADMIN';
-       this.activatedRoute.queryParams.subscribe(params => {
+    this.currentUser = this.authService.getCurrentUser();    
+    // Verificar diferentes formatos possíveis da role
+    this.isAdmin = this.currentUser?.role === 'ROLE_ADMIN' || 
+                   this.currentUser?.role === 'ADMIN' ||
+                   this.currentUser?.role?.[0] === 'ROLE_ADMIN'; // Em caso de array
+    
+    this.activatedRoute.queryParams.subscribe(params => {
       if (params['registered']) {
         this.successMessage = 'Registro concluído com sucesso! Faça login para continuar.';
       } else if (params['sessionExpired']) {
