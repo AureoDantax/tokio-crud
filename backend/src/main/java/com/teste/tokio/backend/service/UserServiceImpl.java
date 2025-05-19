@@ -61,7 +61,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Page<UserDTO> list(Pageable page) {
-        return repo.findAll(page).map(user -> mapper.convertValue(user, UserDTO.class));
+        return repo.findAllByActiveIsTrue(page).map(user -> mapper.convertValue(user, UserDTO.class));
+
     }
 
     @Override
@@ -75,10 +76,11 @@ public class UserServiceImpl implements IUserService {
     public UserDTO update(Long id, UserUpdateDTO dto) {
         User user = repo.findById(id).orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
+        // Atualiza informações básicas do usuário
         if (!ObjectUtils.isEmpty(dto.nome())) {
             user.setNome(dto.nome());
         }
-        if (!ObjectUtils.isEmpty(dto.email())) {
+        if (!ObjectUtils.isEmpty(dto.email()) && !user.getEmail().equals(dto.email())) {
             if (repo.findByEmail(dto.email()).isPresent()) {
                 throw new BusinessException("Email já cadastrado");
             }
@@ -87,16 +89,21 @@ public class UserServiceImpl implements IUserService {
         if (!ObjectUtils.isEmpty(dto.password())) {
             user.setPassword(encoder.encode(dto.password()));
         }
-        if (ObjectUtils.isEmpty(dto.addresses())) {
-            // Se a lista de endereços estiver vazia, remove todos os endereços do usuário
+
+        // Trata os endereços
+        if (dto.addresses() != null && !dto.addresses().isEmpty()) {
             user.getAddresses().clear();
+
+            // Adiciona os novos endereços
+            dto.addresses().forEach(addrDto -> {
+                Address address = mapper.convertValue(addrDto, Address.class);
+                // Garante que o ID seja nulo para criar um novo endereço
+                address.setId(null);
+                address.setUser(user);
+                user.getAddresses().add(address);
+            });
         }
-        List<Address> addresses = dto.addresses().stream().map(addrDto -> {
-            Address address = mapper.convertValue(addrDto, Address.class);
-            address.setUser(user);
-            return address;
-        }).toList();
-        user.getAddresses().addAll(addresses);
+
         User updated = repo.save(user);
         return mapper.convertValue(updated, UserDTO.class);
     }

@@ -48,9 +48,7 @@ export class DashboardComponent implements OnInit {
   }
 
   goToMyProfile(): void {
-    if (this.currentUser?.id) {
-      this.router.navigate(['/usuarios/editar', this.currentUser.id]);
-    }
+    this.router.navigate(['/perfil']);
   }
 
   logout(): void {

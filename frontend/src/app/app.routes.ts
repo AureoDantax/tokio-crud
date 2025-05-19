@@ -25,7 +25,13 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/dashboard/dashboard.module').then(m => m.DashboardModule),
     canActivate: [authGuard]  // Uso da função em vez da classe
   },
-  // Redirecionamentos mantidos como estão
+ {
+  path: 'perfil',
+  loadComponent: () => import('./modules/user/profile/profile.component').then(m => m.ProfileComponent),
+  canActivate: [authGuard]
+},
+ 
+  // Redirecionamento para a rota de login se não houver rota correspondente
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

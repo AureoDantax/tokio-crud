@@ -1,1 +1,226 @@
-<p>user-form works!</p>
+<div class="user-form-container">
+  <div class="form-header">
+    <h2>{{ isEditMode ? 'Editar' : 'Novo' }} Usuário</h2>
+    <button class="btn-secondary" (click)="router.navigate(['/usuarios'])">
+      <i class="fas fa-arrow-left"></i> Voltar
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Processando...</p>
+  </div>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <div class="form-section">
+      <h3>Informações Básicas</h3>
+      
+      <div class="form-group">
+        <label for="nome">Nome*</label>
+        <input 
+          type="text" 
+          id="nome" 
+          formControlName="nome" 
+          [ngClass]="{'is-invalid': submitted && f['nome'].errors}"
+        >
+        <div *ngIf="submitted && f['nome'].errors" class="invalid-feedback">
+          <span *ngIf="f['nome'].errors['required']">Nome é obrigatório</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email*</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email"
+          [ngClass]="{'is-invalid': submitted && f['email'].errors}"
+        >
+        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+          <span *ngIf="f['email'].errors['required']">Email é obrigatório</span>
+          <span *ngIf="f['email'].errors['email']">Email inválido</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">{{ isEditMode ? 'Nova Senha (opcional)' : 'Senha*' }}</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password"
+          [ngClass]="{'is-invalid': submitted && f['password'].errors}"
+        >
+        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+          <span *ngIf="f['password'].errors['required']">Senha é obrigatória</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="role">Função*</label>
+        <select 
+          id="role" 
+          formControlName="role"
+          [ngClass]="{'is-invalid': submitted && f['role'].errors}"
+        >
+          <option value="">Selecione uma função</option>
+          <option *ngFor="let role of roles" [value]="role">
+            {{ role === 'ADMIN' ? 'Administrador' : 'Usuário' }}
+          </option>
+        </select>
+        <div *ngIf="submitted && f['role'].errors" class="invalid-feedback">
+          <span *ngIf="f['role'].errors['required']">Função é obrigatória</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="addresses-header">
+        <h3>Endereços</h3>
+        <button 
+          type="button" 
+          class="btn-add-address" 
+          (click)="addAddress()" 
+          *ngIf="isEditMode"
+          title="Adicionar endereço"
+        >
+          <i class="fas fa-plus"></i> Adicionar Endereço
+        </button>
+      </div>
+
+      <!-- Formulários de Endereço Dinâmicos -->
+      <div formArrayName="addresses">
+        <div 
+          *ngFor="let addressForm of addresses.controls; let i = index" 
+          [formGroupName]="i" 
+          class="address-card"
+        >
+          <div class="address-header">
+            <h4>Endereço {{ i + 1 }}</h4>
+            <button 
+              type="button" 
+              class="btn-remove" 
+              (click)="removeAddress(i)" 
+              *ngIf="isEditMode && addresses.length > 1"
+              title="Remover endereço"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label [for]="'cep-' + i">CEP*</label>
+              <div class="cep-container">
+                <input 
+                  type="text" 
+                  [id]="'cep-' + i" 
+                  formControlName="cep"
+                  [ngClass]="{'is-invalid': submitted && addresses.at(i).get('cep')?.errors}"
+                  placeholder="00000-000"
+                >
+                <button type="button" class="btn-search" (click)="searchCep(i)">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+              <div *ngIf="submitted && addresses.at(i).get('cep')?.errors" class="invalid-feedback">
+                <span *ngIf="addresses.at(i).get('cep')?.errors?.['required']">CEP é obrigatório</span>
+                <span *ngIf="addresses.at(i).get('cep')?.errors?.['pattern']">CEP inválido</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group form-group-lg">
+              <label [for]="'logradouro-' + i">Logradouro*</label>
+              <input 
+                type="text" 
+                [id]="'logradouro-' + i" 
+                formControlName="logradouro"
+                [ngClass]="{'is-invalid': submitted && addresses.at(i).get('logradouro')?.errors}"
+              >
+              <div *ngIf="submitted && addresses.at(i).get('logradouro')?.errors" class="invalid-feedback">
+                <span *ngIf="addresses.at(i).get('logradouro')?.errors?.['required']">Logradouro é obrigatório</span>
+              </div>
+            </div>
+
+            <div class="form-group form-group-sm">
+              <label [for]="'numero-' + i">Número*</label>
+              <input 
+                type="text" 
+                [id]="'numero-' + i" 
+                formControlName="numero"
+                [ngClass]="{'is-invalid': submitted && addresses.at(i).get('numero')?.errors}"
+              >
+              <div *ngIf="submitted && addresses.at(i).get('numero')?.errors" class="invalid-feedback">
+                <span *ngIf="addresses.at(i).get('numero')?.errors?.['required']">Número é obrigatório</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label [for]="'complemento-' + i">Complemento</label>
+            <input 
+              type="text" 
+              [id]="'complemento-' + i" 
+              formControlName="complemento"
+            >
+          </div>
+
+          <div class="form-group">
+            <label [for]="'bairro-' + i">Bairro*</label>
+            <input 
+              type="text" 
+              [id]="'bairro-' + i" 
+              formControlName="bairro"
+              [ngClass]="{'is-invalid': submitted && addresses.at(i).get('bairro')?.errors}"
+            >
+            <div *ngIf="submitted && addresses.at(i).get('bairro')?.errors" class="invalid-feedback">
+              <span *ngIf="addresses.at(i).get('bairro')?.errors?.['required']">Bairro é obrigatório</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group form-group-lg">
+              <label [for]="'cidade-' + i">Cidade*</label>
+              <input 
+                type="text" 
+                [id]="'cidade-' + i" 
+                formControlName="cidade"
+                [ngClass]="{'is-invalid': submitted && addresses.at(i).get('cidade')?.errors}"
+              >
+              <div *ngIf="submitted && addresses.at(i).get('cidade')?.errors" class="invalid-feedback">
+                <span *ngIf="addresses.at(i).get('cidade')?.errors?.['required']">Cidade é obrigatória</span>
+              </div>
+            </div>
+
+            <div class="form-group form-group-sm">
+              <label [for]="'estado-' + i">UF*</label>
+              <input 
+                type="text" 
+                [id]="'estado-' + i" 
+                formControlName="estado"
+                [ngClass]="{'is-invalid': submitted && addresses.at(i).get('estado')?.errors}"
+                maxlength="2"
+                style="text-transform: uppercase;"
+              >
+              <div *ngIf="submitted && addresses.at(i).get('estado')?.errors" class="invalid-feedback">
+                <span *ngIf="addresses.at(i).get('estado')?.errors?.['required']">UF é obrigatória</span>
+                <span *ngIf="addresses.at(i).get('estado')?.errors?.['minlength'] || addresses.at(i).get('estado')?.errors?.['maxlength']">UF deve ter 2 caracteres</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        <span *ngIf="loading" class="spinner-sm"></span>
+        {{ isEditMode ? 'Atualizar' : 'Cadastrar' }} Usuário
+      </button>
+      <button type="button" class="btn-secondary" (click)="router.navigate(['/usuarios'])">
+        Cancelar
+      </button>
+    </div>
+  </form>
+</div>

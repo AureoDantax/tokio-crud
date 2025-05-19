@@ -1,7 +1,7 @@
 import { AddressDTO } from "./address.model";
 
 export interface UserModel {
-  id?: number;
+  id: number; 
   nome: string;
   email: string;
   password?: string;
@@ -22,4 +22,5 @@ export interface UserUpdateDTO {
   email?: string;
   password?: string;
   addresses?: AddressDTO[];
+  role?: string;
 }

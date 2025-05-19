@@ -33,7 +33,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public Page<UserDTO> getAllUsers(
-            @PageableDefault(sort = {"created_at"}, direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(sort = {"createdAt"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return service.list(pageable);
     }

@@ -1,0 +1,110 @@
+<div class="profile-container">
+  <h2>Meu Perfil</h2>
+  
+  <!-- Alertas de feedback -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Formulário de Perfil -->
+  <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+    <div class="form-group">
+      <label for="nome">Nome</label>
+      <input 
+        type="text" 
+        id="nome" 
+        formControlName="nome"
+        [ngClass]="{'is-invalid': nomeControl?.invalid && nomeControl?.touched}"
+      >
+      <div *ngIf="nomeControl?.invalid && nomeControl?.touched" class="invalid-feedback">
+        <span *ngIf="nomeControl?.errors?.['required']">Nome é obrigatório</span>
+        <span *ngIf="nomeControl?.errors?.['minlength']">Nome deve ter no mínimo 3 caracteres</span>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="email">E-mail</label>
+      <input 
+        type="email" 
+        id="email" 
+        formControlName="email"
+        [ngClass]="{'is-invalid': emailControl?.invalid && emailControl?.touched}"
+      >
+      <div *ngIf="emailControl?.invalid && emailControl?.touched" class="invalid-feedback">
+        <span *ngIf="emailControl?.errors?.['required']">E-mail é obrigatório</span>
+        <span *ngIf="emailControl?.errors?.['email']">E-mail inválido</span>
+      </div>
+    </div>
+    
+    <h3 class="section-title">Alterar Senha (opcional)</h3>
+    
+    <div class="form-group">
+      <label for="password">Nova Senha</label>
+      <input 
+        type="password" 
+        id="password" 
+        formControlName="password"
+        [ngClass]="{'is-invalid': passwordControl?.invalid && passwordControl?.touched}"
+      >  
+    </div>
+    
+    <div class="form-group">
+      <label for="confirmPassword">Confirmar Nova Senha</label>
+      <input 
+        type="password" 
+        id="confirmPassword" 
+        formControlName="confirmPassword"
+        [ngClass]="{'is-invalid': profileForm.errors?.['passwordsMismatch'] && confirmPasswordControl?.touched}"
+      >
+      <div *ngIf="profileForm.errors?.['passwordsMismatch'] && confirmPasswordControl?.touched" class="invalid-feedback">
+        <span>As senhas não coincidem</span>
+      </div>
+    </div>
+    
+    <div class="addresses-section">
+      <div class="section-header">
+        <h3>Meus Endereços</h3>
+        <button type="button" class="btn-link" (click)="goToAddressManagement()">
+          Gerenciar Endereços
+        </button>
+      </div>
+      
+      <div *ngIf="userAddresses.length === 0" class="no-addresses">
+        Você não possui endereços cadastrados.
+      </div>
+      
+      <ul class="address-list" *ngIf="userAddresses.length > 0">
+        <li *ngFor="let address of userAddresses">
+          <div class="address-card">
+            <p><strong>{{ address.logradouro }}, {{ address.numero }}</strong></p>
+            <p *ngIf="address.complemento">{{ address.complemento }}</p>
+            <p>{{ address.bairro }}, {{ address.cidade }} - {{ address.estado }}</p>
+            <p>CEP: {{ address.cep }}</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="btn-primary" 
+        [disabled]="profileForm.invalid || loading"
+      >
+        <span *ngIf="loading" class="spinner"></span>
+        Salvar Alterações
+      </button>
+      <button 
+        type="button" 
+        class="btn-secondary"
+        (click)="router.navigate(['/dashboard'])"
+      >
+        Voltar
+      </button>
+    </div>
+  </form>
+</div>

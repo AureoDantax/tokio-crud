@@ -1,1 +1,114 @@
-<p>user-list works!</p>
+<div class="user-list-container">
+  <div class="user-list-header">
+    <h2>Gerenciamento de Usuários</h2>
+    <div class="header-buttons">
+      <button class="btn-secondary" (click)="goToDashboard()">
+        <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+      </button>
+      <button class="btn-primary" (click)="addNewUser()" [disabled]="loading">
+        <i class="fas fa-plus"></i> Novo Usuário
+      </button>
+    </div>
+  </div>
+  
+  <!-- Alertas de feedback -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+  
+  <!-- Barra de pesquisa -->
+  <div class="search-bar">
+    <input 
+      type="text" 
+      [(ngModel)]="searchTerm" 
+      placeholder="Buscar por nome ou email" 
+      (keyup)="searchUsers()"
+    >
+    <button class="btn-search" (click)="searchUsers()">
+      <i class="fas fa-search"></i>
+    </button>
+    <button *ngIf="searchTerm" class="btn-clear" (click)="clearSearch()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  
+  <!-- Tabela de usuários -->
+  <div class="table-responsive">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Função</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading">
+          <td colspan="5" class="loading-row">
+            <div class="spinner"></div>
+            <span>Carregando usuários...</span>
+          </td>
+        </tr>
+        <tr *ngIf="!loading && users.length === 0">
+          <td colspan="5" class="empty-row">
+            Nenhum usuário encontrado.
+          </td>
+        </tr>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.nome }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role === 'ROLE_ADMIN' ? 'Administrador' : 'Usuário' }}</td>
+          <td class="actions-cell">
+            <button class="btn-icon" title="Editar" (click)="editUser(user.id!)">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon" title="Excluir" (click)="deleteUser(user.id!)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Paginação -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button 
+      [disabled]="currentPage === 0" 
+      (click)="goToPage(currentPage - 1)"
+      class="btn-page"
+    >
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    
+    <div class="page-numbers">
+      <button 
+        *ngFor="let page of pages" 
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+        class="btn-page"
+      >
+        {{ page + 1 }}
+      </button>
+    </div>
+    
+    <button 
+      [disabled]="currentPage === totalPages - 1" 
+      (click)="goToPage(currentPage + 1)"
+      class="btn-page"
+    >
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+  
+  <div class="pagination-info" *ngIf="users.length > 0">
+    Exibindo página {{ currentPage + 1 }} de {{ totalPages }}
+  </div>
+</div>

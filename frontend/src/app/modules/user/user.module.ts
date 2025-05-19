@@ -1,18 +1,11 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-import { UserRoutingModule } from './user-routing.module';
-import { UserListComponent } from './user-list/user-list.component';
-import { UserFormComponent } from './user-form/user-form.component';
+import { RouterModule } from '@angular/router';
+import { USER_ROUTES } from './user.routes';
 
 @NgModule({
-  declarations: [
-  ],
   imports: [
-    UserListComponent,
-    UserFormComponent,
-    CommonModule,
-    UserRoutingModule
-  ]
+    RouterModule.forChild(USER_ROUTES)
+  ],
+  exports: [RouterModule]
 })
 export class UserModule { }

@@ -66,12 +66,6 @@ public class AddressServiceImpl implements IAddressService {
         Address address = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Endereço não encontrado"));
 
-        // Verifica se o usuário é ADMIN através do contexto de segurança
-        boolean isAdmin = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getAuthorities()
-                .stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
 
         repo.delete(address);
     }
