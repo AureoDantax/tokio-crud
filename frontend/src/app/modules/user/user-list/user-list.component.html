@@ -37,6 +37,23 @@
       <i class="fas fa-times"></i>
     </button>
   </div>
+
+  <!-- Opção 1: Adicionar um botão de reset próximo à tabela -->
+  <div class="sort-controls">
+    <div class="sort-helper">
+      <small>
+        <i class="fas fa-info-circle"></i> 
+        Clique nos cabeçalhos "Nome" ou "Email" para ordenar a tabela.
+      </small>
+    </div>
+    
+    <button *ngIf="sortColumn" 
+            class="btn-text reset-sort" 
+            (click)="resetSort()" 
+            title="Restaurar ordenação original">
+      <i class="fas fa-undo-alt"></i> Restaurar ordem padrão
+    </button>
+  </div>
   
   <!-- Tabela de usuários -->
   <div class="table-responsive">
@@ -44,8 +61,30 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Nome</th>
-          <th>Email</th>
+          <th (click)="toggleSort('nome')" class="sortable-header">
+            Nome
+            <span class="sort-icon" *ngIf="sortColumn === 'nome'">
+              <i class="fas" [ngClass]="sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+            </span>
+            <span class="sort-icon" *ngIf="sortColumn !== 'nome'">
+              <i class="fas fa-sort"></i>
+            </span>
+            <!-- Ícone para resetar (visível apenas quando ordenado por esta coluna) -->
+            <span *ngIf="sortColumn === 'nome'" 
+                  class="reset-sort-icon" 
+                  (click)="$event.stopPropagation(); resetSort()">
+              <i class="fas fa-times"></i>
+            </span>
+          </th>
+          <th (click)="toggleSort('email')" class="sortable-header">
+            Email
+            <span class="sort-icon" *ngIf="sortColumn === 'email'">
+              <i class="fas" [ngClass]="sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+            </span>
+            <span class="sort-icon" *ngIf="sortColumn !== 'email'">
+              <i class="fas fa-sort"></i>
+            </span>
+          </th>
           <th>Função</th>
           <th>Ações</th>
         </tr>
